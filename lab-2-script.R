@@ -19,6 +19,8 @@ colnames(cars) <- c("buyingPrice",
                     "safety",
                     "decision")
 
+head(cars)
+
 ######## PRE - PROCESAMIENTO ############
 
 # Se cambian todos los valores a numericos mediante
@@ -91,46 +93,64 @@ cars$decision <- sapply(cars$decision, changeToNumberDecision)
 # Se verifica que los tipos de atributos sean numericos
 sapply(cars, class)
 
+head(cars)
+
 ####### APLICACION DE K-MEANS ############
 
+####### CON TODAS LAS VARIABLES ###########
+
+# Todas las variables
+allVariables <- cars %>% select(buyingPrice, maintenanceCost, safety, numberOfPersons, numberOfDoors, sizeOfLuggageBoot)
+
+# Se calculan las distancias
+distances <- daisy(allVariables, metric = "gower")
+
+# Se aplica el algoritmo
+fit_pam <- pam(distances, k = 4)
+fit_pam$data <- allVariables
+
+# Se obtiene el grafico con los clusters
+fviz_cluster(fit_pam, geom = c("point"), ellipse.type = "norm")
+
+# Para conocer el numero optimo de cluster "k"
+fviz_nbclust(allVariables, pam, method = "silhouette")
+fviz_nbclust(allVariables, pam, method = "wss")
+
+###### CON VARIABLES MAS INFLUYENTES ########
+
+# Solo con las variables mas importantes
+
 # Se seleccionan las variables mas influyentes 
-importantVariables <- cars %>% select(buyingPrice, maintenanceCost, safety, numberOfPersons, decision)
-testing <- cars %>% select(safety, decision)
+importantVariables <- cars %>% select(buyingPrice, maintenanceCost, safety, numberOfPersons)
 
-testing2 <- cars %>% select(buyingPrice, maintenanceCost)
-fit_testing2 <- pam(testing2, 16)
-fviz_cluster(fit_testing2, data = testing2, geom = c("point"))
-fviz_nbclust(testing2, pam, method = "wss")
+# Se calculan las distancias
+distances_imp <- daisy(importantVariables, metric = "gower")
 
-fit_testing_pam <- pam(testing, 6, stand = FALSE)
-fit_pam <- pam(importantVariables, 3, stand = FALSE)
-fit_kmeans <- kmeans(importantVariables, centers = 5, nstart = 25)
+# Se aplica el algoritmo
+fit_pam_imp <- pam(distances_imp, k = 2)
+fit_pam_imp$data <- importantVariables
 
+# Se grafican los clusters
+fviz_cluster(fit_pam_imp, geom = c("point"), ellipse.type = "norm")
 
+# Se obtienen el numero optimo de "k"
+fviz_nbclust(importantVariables, pam, method = "silhouette")
+fviz_nbclust(importantVariables, pam, method = "wss")
 
-fit_pam$silinfo
+########## CON DOS VARIABLES #############
 
-fviz_cluster(fit_kmeans, data = importantVariables, geom = c("point"))
+# Con dos variables
+twoVariables <- cars %>% select(safety, numberOfPersons)
 
-fviz_cluster(fit_pam, data = importantVariables, geom = c("point"))
-fviz_cluster(fit_testing_pam, data = testing, geom = c("point"))
+# Se calculan las distancias
+distances_two <- daisy(twoVariables, metric = "gower")
 
-fviz_cluster(fit_kmeans, data = importantVariables, geom = c("point"))
-print(fit_kmeans)
-fviz_nbclust(testing, pam, method = "silhouette")
+fit_pam_two <- pam(distances_two, k = 2)
+fit_pam_two$data <- twoVariables
 
-matriz1 <- daisy(importantVariables, metric = "gower")
-fit_pam <- pam(matriz1, k = 3) 
-fviz_cluster(matriz1, importantVariables, geom = c("point"))
-fviz_cluster(matriz1, data = importantVariables, geom = c("point"))
+fviz_cluster(fit_pam_two, geom = c("point"))
 
-fit_pam$data = importantVariables
-fviz_cluster(fit_pam)
+fviz_nbclust(twoVariables, pam, method = "silhouette")
+fviz_nbclust(twoVariables, pam, method = "wss")
 
-j_dist <- dist(importantVariables, method = "binary", p = 4)
-fit_pam <- pam(j_dist, k = 6, diss = TRUE) 
-fviz_cluster(fit_pam)
-
-
-class(matriz)
 
