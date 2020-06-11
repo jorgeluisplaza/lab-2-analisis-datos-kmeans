@@ -110,11 +110,12 @@ fit_pam <- pam(distances, k = 4)
 fit_pam$data <- allVariables
 
 # Se obtiene el grafico con los clusters
-fviz_cluster(fit_pam, geom = c("point"), ellipse.type = "norm")
+fviz_cluster(fit_pam, geom = c("point"), ellipse.type = "norm", stand = FALSE)
 
 # Para conocer el numero optimo de cluster "k"
 fviz_nbclust(allVariables, pam, method = "silhouette")
 fviz_nbclust(allVariables, pam, method = "wss")
+
 
 ###### CON VARIABLES MAS INFLUYENTES ########
 
@@ -127,11 +128,11 @@ importantVariables <- cars %>% select(buyingPrice, maintenanceCost, safety, numb
 distances_imp <- daisy(importantVariables, metric = "gower")
 
 # Se aplica el algoritmo
-fit_pam_imp <- pam(distances_imp, k = 2)
+fit_pam_imp <- pam(distances_imp, k = 6)
 fit_pam_imp$data <- importantVariables
 
 # Se grafican los clusters
-fviz_cluster(fit_pam_imp, geom = c("point"), ellipse.type = "norm")
+fviz_cluster(fit_pam_imp, geom = c("point"), ellipse.type = "norm", stand = FALSE)
 
 # Se obtienen el numero optimo de "k"
 fviz_nbclust(importantVariables, pam, method = "silhouette")
